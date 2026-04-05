@@ -1,0 +1,657 @@
+/* ═══════════════════════════════════════════════════════════
+   style.css  —  YIN Tuner   60-30-10 palette
+   60% carbon black / charcoal  →  page bg, card, inputs
+   30% floral white / dust grey →  text, borders, inactive UI
+   10% spicy paprika            →  accent: active, needle, cta
+   ═══════════════════════════════════════════════════════════ */
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Tokens ──────────────────────────────────────────────── */
+:root {
+  /* Raw palette */
+  --floral-white:   #fffcf2;
+  --dust-grey:      #ccc5b9;
+  --charcoal-brown: #403d39;
+  --carbon-black:   #252422;
+  --spicy-paprika:  #eb5e28;
+
+  /* Derived semantic tokens */
+  --font:     'DM Mono', 'Courier New', monospace;
+
+  /* 60% surfaces */
+  --bg:       #1a1917;          /* slightly deeper than carbon-black */
+  --card:     var(--carbon-black);
+  --inset:    #2e2b28;          /* inputs, tab pills, slider tracks */
+  --inset2:   #343129;          /* deeper inset: slider group bg */
+
+  /* 30% text & borders */
+  --text:     var(--floral-white);
+  --muted:    var(--dust-grey);
+  --faint:    #6b6560;
+  --border:   rgba(204,197,185,0.12);
+  --border2:  rgba(204,197,185,0.22);
+
+  /* 10% accent */
+  --accent:         var(--spicy-paprika);
+  --accent-dim:     rgba(235,94,40,0.18);
+  --accent-dimmer:  rgba(235,94,40,0.08);
+
+  /* Tuning state colours (distinct from accent so states are unambiguous) */
+  --c-intune:    #4ecb82;
+  --c-close:     var(--spicy-paprika);
+  --c-off:       #b03020;
+  --carbon-black: #252422;   /* direct ref needed inside gauge-center */
+}
+
+/* ── Base ────────────────────────────────────────────────── */
+body {
+  font-family:      var(--font);
+  background-color: var(--bg);
+  background-image: url('Background.jpg');
+  background-size:  cover;
+  background-position: center;
+  background-attachment: fixed;
+  color:            var(--text);
+  min-height:       100dvh;
+  display:          flex;
+  align-items:      center;
+  justify-content:  center;
+  padding:          1rem;
+}
+
+/* ── [hidden] always wins over any display rule ──────────── */
+[hidden] { display: none !important; }
+
+/* ═══════════════════════════════════════════════════════════
+   CARD
+   Background image shows through at ~85% opacity on the card.
+   The backdrop-filter blur softens the pattern so text stays
+   readable without hiding the background entirely.
+   ═══════════════════════════════════════════════════════════ */
+.tuner {
+  display:            flex;
+  flex-direction:     column;
+  align-items:        stretch;
+  gap:                1.1rem;
+  width:              min(440px, 100%);
+  background:         rgba(37, 36, 34, 0.82);
+  backdrop-filter:    blur(18px) saturate(1.4);
+  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  border:             1px solid rgba(235, 94, 40, 0.25);
+  border-radius:      14px;
+  padding:            1.25rem 1.25rem 1.5rem;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   TOP TAB BAR  (Tuner / Settings)
+   30% resting  →  10% active
+   ═══════════════════════════════════════════════════════════ */
+.top-tabs {
+  display:       flex;
+  background:    var(--inset);
+  border-radius: 8px;
+  padding:       3px;
+  gap:           3px;
+}
+
+.top-tab {
+  flex:          1;
+  padding:       7px 0;
+  border:        none;
+  border-radius: 6px;
+  background:    transparent;
+  color:         var(--muted);
+  font:          inherit;
+  font-size:     12px;
+  letter-spacing: 0.03em;
+  cursor:        pointer;
+  transition:    background .15s, color .15s;
+}
+.top-tab.active {
+  background: var(--accent);
+  color:      var(--floral-white);
+}
+
+/* ── Tab panels ──────────────────────────────────────────── */
+#tabTuner {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            1rem;
+}
+#tabSettings {
+  display:        flex;
+  flex-direction: column;
+  gap:            1.25rem;
+  padding-top:    0.75rem;  /* breathing room below the tab bar */
+}
+
+/* ═══════════════════════════════════════════════════════════
+   INSTRUMENT MODE TABS  (Guitar / Bass / Chromatic)
+   ═══════════════════════════════════════════════════════════ */
+.mode-tabs {
+  display:       flex;
+  background:    var(--inset);
+  border-radius: 7px;
+  padding:       3px;
+  gap:           3px;
+  width:         100%;
+}
+.mode-tab {
+  flex:          1;
+  padding:       5px 0;
+  border:        none;
+  border-radius: 5px;
+  background:    transparent;
+  color:         var(--faint);
+  font:          inherit;
+  font-size:     12px;
+  cursor:        pointer;
+  transition:    background .15s, color .15s;
+}
+.mode-tab.active {
+  background: var(--charcoal-brown);
+  color:      var(--text);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PRESET ROW
+   ═══════════════════════════════════════════════════════════ */
+.preset-row {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+  width:       100%;
+}
+.preset-row label {
+  font-size:   11px;
+  color:       var(--faint);
+  white-space: nowrap;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+#presetSelect {
+  flex:             1;
+  padding:          6px 28px 6px 10px;
+  background:       var(--inset);
+  border:           1px solid var(--border2);
+  border-radius:    6px;
+  color:            var(--muted);
+  font:             inherit;
+  font-size:        12px;
+  cursor:           pointer;
+  appearance:       none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23ccc5b9' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat:   no-repeat;
+  background-position: right 10px center;
+  transition: border-color .15s;
+}
+#presetSelect:focus { outline: none; border-color: var(--accent); }
+
+/* ═══════════════════════════════════════════════════════════
+   STRING GRID
+   ═══════════════════════════════════════════════════════════ */
+.strings-grid { display: grid; gap: 5px; width: 100%; }
+
+.string-cell {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            3px;
+}
+
+/* 30% resting: charcoal border, muted text */
+.string-btn {
+  width:         100%;
+  padding:       9px 2px 7px;
+  border:        1px solid var(--border);
+  border-radius: 7px;
+  background:    var(--inset);
+  color:         var(--faint);
+  font:          inherit;
+  font-size:     13px;
+  font-weight:   600;
+  cursor:        pointer;
+  text-align:    center;
+  transition:    all .15s;
+}
+.string-btn:hover { border-color: var(--border2); color: var(--muted); }
+/* 10% active: paprika border + tint */
+.string-btn.active {
+  background:   var(--accent-dim);
+  border-color: var(--accent);
+  color:        var(--accent);
+}
+
+.str-num { font-size: 9px; color: var(--faint); letter-spacing: 0.04em; }
+
+.string-select {
+  width:           100%;
+  padding:         3px 2px;
+  background:      var(--inset);
+  border:          1px solid var(--border);
+  border-radius:   5px;
+  color:           var(--faint);
+  font:            inherit;
+  font-size:       9px;
+  cursor:          pointer;
+  appearance:      none;
+  text-align:      center;
+  text-align-last: center;
+  transition:      border-color .15s, color .15s;
+}
+.string-select:focus { outline: none; border-color: var(--accent); color: var(--muted); }
+
+.chromatic-label {
+  text-align: center;
+  font-size:  12px;
+  color:      var(--faint);
+  padding:    4px 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   NOTE DISPLAY
+   State colours: intune=green  close=paprika  off=dark-red
+   ═══════════════════════════════════════════════════════════ */
+.note-display {
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  gap:             1px;
+  min-height:      68px;
+  justify-content: center;
+}
+.note-name {
+  font-size:   58px;
+  font-weight: 700;
+  line-height: 1;
+  color:       var(--charcoal-brown);
+  transition:  color .2s, opacity .08s;
+}
+.note-name[data-state="intune"] { color: var(--c-intune); }
+.note-name[data-state="close"]  { color: var(--accent); }
+.note-name[data-state="off"]    { color: var(--c-off); }
+
+.note-sub { font-size: 12px; color: var(--faint); }
+
+/* ═══════════════════════════════════════════════════════════
+   CSS GAUGE  —  semicircular speedometer style
+   Based on rotated slice divs + a CSS transform needle.
+   No canvas, no external library.
+
+   Structure:
+     .gauge-wrap        outer container, centres the gauge
+     .gauge             200×100 semicircle, overflow:hidden
+       .gauge-slices    four rotated colour wedges
+       .gauge-needle    the rotating pointer
+       .gauge-center    dark hub cap with cents readout
+     .gauge-labels      flat / sharp text below the arc
+   ═══════════════════════════════════════════════════════════ */
+
+/* Outer wrapper — centres the gauge and the labels below it */
+.gauge-wrap {
+  display:        flex;
+  flex-direction: column;
+  align-items:    center;
+  gap:            6px;
+  width:          100%;
+  padding:        4px 0 0;
+}
+
+/* The semicircle body */
+.gauge {
+  font-family:  var(--font);
+  width:        220px;
+  height:       110px;
+  border-radius: 110px 110px 0 0;
+  background:   var(--inset);
+  box-shadow:
+    0 0 0 5px rgba(235, 94, 40, 0.12),
+    0 0 28px 4px rgba(235, 94, 40, 0.18);
+  position:     relative;
+  overflow:     hidden;
+  /* Safari stack-context fix */
+  -webkit-transform-style: flat;
+  -webkit-transform: translateZ(0);
+}
+
+/* ── Colour slices ──────────────────────────────────────────
+   Each slice is a full 220×220 square rotated around the
+   bottom-centre of the semicircle to create a pie wedge.
+
+   The gauge spans -90° (far flat) → 0° (centre) → +90° (far sharp).
+   That is 180° total. Each half gets two zones:
+     Outer 40° = red (off)
+     Inner 50° = paprika (close)
+     Centre 20° = green (in tune, shared across both halves)
+
+   We use left-origin rotation for the left half and
+   right-origin rotation for the right half, matching the
+   reference implementation.
+──────────────────────────────────────────────────────────── */
+.gauge-slices { position: absolute; bottom: 0; left: 0; right: 0; }
+
+.gs {
+  position: absolute;
+  bottom:   0;
+  width:    220px;
+  height:   220px;
+}
+
+/* Far flat  (left outer) — red, rotates from left */
+.gs-far-flat {
+  background:       var(--c-off);
+  left:             -110px;
+  transform-origin: bottom right;
+  transform:        rotate(-40deg);
+}
+
+/* Near flat (left inner) — paprika, covers the outer red wedge inward */
+.gs-near-flat {
+  background:       var(--c-close);
+  left:             -110px;
+  transform-origin: bottom right;
+  transform:        rotate(-14deg);
+}
+
+/* Near sharp (right inner) — in-tune green fills the centre */
+.gs-near-sharp {
+  background:       var(--c-intune);
+  left:             0;
+  transform-origin: bottom left;
+  transform:        rotate(14deg);
+}
+
+/* Far sharp (right outer) — paprika then red stacked on the right */
+/* We need two right-side divs: paprika inner + red outer */
+/* Since we only have one .gs-far-sharp, we fake the two-tone right
+   side by letting gs-near-sharp (green) sit on top of gs-far-sharp (red)
+   with a paprika div in between rendered via ::before */
+.gs-far-sharp {
+  background:       var(--c-off);
+  left:             110px;
+  transform-origin: bottom left;
+  transform:        rotate(40deg);
+}
+
+/* Paprika wedge on the right — inserted via a 5th slice */
+.gs-mid-sharp {
+  background:       var(--c-close);
+  left:             110px;
+  transform-origin: bottom left;
+  transform:        rotate(14deg);
+}
+
+/* ── Needle ─────────────────────────────────────────────────
+   Pivot is at the bottom-centre of the semicircle.
+   transform-origin: right end of the needle bar (100% 50%).
+   rotate(0deg) = pointing straight up = 0 cents (in tune).
+   rotate(-90deg) = pointing left = -50 cents (max flat).
+   rotate(+90deg) = pointing right = +50 cents (max sharp).
+──────────────────────────────────────────────────────────── */
+.gauge-needle {
+  width:         94px;
+  height:        5px;
+  background:    var(--floral-white);
+  border-radius: 3px 2px 2px 3px;
+  position:      absolute;
+  bottom:        7px;
+  /* right-end of needle sits at the centre of the semicircle */
+  left:          calc(50% - 94px);
+  transform-origin: 100% 50%;
+  transform:     rotate(0deg);
+  box-shadow:    0 1px 4px rgba(0,0,0,0.5);
+  transition:    transform 0.7s cubic-bezier(0.65, 1.95, 0.03, 0.32);
+}
+
+/* ── Centre hub ─────────────────────────────────────────────
+   Dark disc at the pivot that hides the needle base and
+   shows the live cents reading.
+──────────────────────────────────────────────────────────── */
+.gauge-center {
+  position:      absolute;
+  bottom:        0;
+  left:          50%;
+  transform:     translateX(-50%);
+  width:         58%;
+  height:        58%;
+  background:    var(--carbon-black);
+  border-radius: 110px 110px 0 0;
+  box-shadow:    0 -8px 14px -6px rgba(0,0,0,0.4);
+  display:       flex;
+  flex-direction: column;
+  align-items:   center;
+  justify-content: flex-start;
+  padding-top:   14px;
+  gap:           1px;
+}
+
+.gauge-counter {
+  font-size:   1.3em;
+  font-weight: 500;
+  color:       var(--floral-white);
+  line-height: 1;
+  transition:  color 0.2s;
+}
+.gauge-counter[data-state="intune"] { color: var(--c-intune); }
+.gauge-counter[data-state="close"]  { color: var(--accent); }
+.gauge-counter[data-state="off"]    { color: var(--c-off); }
+
+.gauge-unit {
+  font-size: 0.65em;
+  color:     var(--faint);
+  line-height: 1;
+}
+
+/* ── flat / sharp labels ────────────────────────────────── */
+.gauge-labels {
+  display:         flex;
+  justify-content: space-between;
+  width:           220px;
+}
+.glabel {
+  font-size:      9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color:          var(--faint);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   READOUT LABELS
+   ═══════════════════════════════════════════════════════════ */
+/* Thin divider above readouts */
+.readout-row {
+  display:     flex;
+  flex-direction: column;
+  align-items: center;
+  gap:         3px;
+  width:       100%;
+  padding-top: 0.25rem;
+  border-top:  1px solid var(--border);
+}
+
+.cents-label {
+  font-size:  13px;
+  font-weight: 500;
+  text-align: center;
+  min-height: 18px;
+  color:      var(--faint);
+  transition: color .2s, opacity .1s;
+}
+.cents-label[data-state="intune"] { color: var(--c-intune); }
+.cents-label[data-state="close"]  { color: var(--accent); }
+.cents-label[data-state="off"]    { color: var(--c-off); }
+
+.freq-label {
+  font-size: 11px;
+  color:     var(--faint);
+  text-align: center;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   START BUTTON  — 10% accent as the primary CTA
+   ═══════════════════════════════════════════════════════════ */
+.start-btn {
+  width:         100%;
+  padding:       11px 0;
+  border:        none;
+  border-radius: 8px;
+  background:    var(--accent);
+  color:         var(--floral-white);
+  font:          inherit;
+  font-size:     13px;
+  font-weight:   500;
+  letter-spacing: 0.04em;
+  cursor:        pointer;
+  transition:    background .15s, opacity .15s;
+}
+.start-btn:hover    { background: #d4531f; }
+.start-btn.listening {
+  background: var(--inset);
+  color:      var(--accent);
+  border:     1px solid var(--accent);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SETTINGS TAB
+   ═══════════════════════════════════════════════════════════ */
+.settings-section {
+  display:        flex;
+  flex-direction: column;
+  gap:            0.6rem;
+  padding-bottom: 1.1rem;
+  border-bottom:  1px solid var(--border);
+}
+.settings-section:last-child { border-bottom: none; padding-bottom: 0; }
+
+.section-title {
+  font-size:      10px;
+  font-weight:    500;
+  color:          var(--accent);        /* 10% accent on section headers */
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+}
+
+.section-desc {
+  font-size:   12px;
+  color:       var(--faint);
+  line-height: 1.6;
+}
+
+/* ── Level meter ─────────────────────────────────────────── */
+.level-wrap {
+  display:     flex;
+  align-items: center;
+  gap:         10px;
+}
+.level-track {
+  flex:          1;
+  height:        12px;
+  background:    var(--inset);
+  border:        1px solid var(--border);
+  border-radius: 3px;
+  position:      relative;
+  overflow:      visible;
+}
+.level-bar {
+  height:        100%;
+  border-radius: 3px;
+  width:         0%;
+  transition:    width .04s linear, background .1s;
+  max-width:     100%;
+}
+/* Gate marker: uses floral-white (30% colour) so it's visible but not accent */
+.level-gate {
+  position:       absolute;
+  top:            -3px;
+  bottom:         -3px;
+  width:          2px;
+  background:     var(--floral-white);
+  border-radius:  1px;
+  left:           0%;
+  transition:     left .2s;
+  pointer-events: none;
+}
+.level-rms {
+  font-size:  10px;
+  color:      var(--faint);
+  min-width:  44px;
+  text-align: right;
+}
+
+/* ── Calibration ─────────────────────────────────────────── */
+.cal-btn {
+  align-self:    flex-start;
+  padding:       7px 16px;
+  border:        1px solid var(--border2);
+  border-radius: 6px;
+  background:    transparent;
+  color:         var(--muted);
+  font:          inherit;
+  font-size:     12px;
+  cursor:        pointer;
+  transition:    border-color .15s, color .15s, background .15s;
+}
+.cal-btn:hover    { border-color: var(--accent); color: var(--accent); }
+.cal-btn:disabled { opacity: .35; cursor: default; }
+
+.cal-progress-wrap { margin-top: 2px; }
+.cal-progress-track {
+  height:        5px;
+  background:    var(--inset);
+  border-radius: 3px;
+  overflow:      hidden;
+}
+.cal-progress-bar {
+  height:     100%;
+  width:      0%;
+  background: var(--accent);   /* 10% accent on progress */
+  border-radius: 3px;
+  transition: width .1s linear;
+}
+.cal-status { font-size: 11px; color: var(--faint); min-height: 14px; line-height: 1.5; }
+
+/* ── Slider groups ───────────────────────────────────────── */
+.slider-group {
+  display:        flex;
+  flex-direction: column;
+  gap:            5px;
+  padding:        0.65rem 0.75rem;
+  background:     var(--inset2);
+  border:         1px solid var(--border);
+  border-radius:  7px;
+}
+.slider-header {
+  display:         flex;
+  justify-content: space-between;
+  align-items:     baseline;
+}
+/* 30%: label in muted text */
+.slider-label   { font-size: 12px; color: var(--muted); }
+/* 10%: readout in accent */
+.slider-readout { font-size: 11px; color: var(--accent); font-weight: 500; }
+
+input[type="range"] {
+  width:        100%;
+  accent-color: var(--accent);
+  cursor:       pointer;
+  height:       4px;
+}
+
+.slider-hint { font-size: 10px; color: var(--faint); line-height: 1.55; }
+
+.reset-btn {
+  align-self:    flex-start;
+  margin-top:    0.2rem;
+  padding:       6px 14px;
+  border:        1px solid var(--border);
+  border-radius: 6px;
+  background:    transparent;
+  color:         var(--faint);
+  font:          inherit;
+  font-size:     11px;
+  cursor:        pointer;
+  transition:    border-color .15s, color .15s;
+}
+.reset-btn:hover { border-color: var(--border2); color: var(--muted); }

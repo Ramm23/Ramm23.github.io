@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YIN Tuner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <main class="tuner">
+
+    <!-- Top tab bar -->
+    <nav class="top-tabs">
+      <button class="top-tab active" id="tabBtnTuner">Tuner</button>
+      <button class="top-tab"        id="tabBtnSettings">Settings</button>
+    </nav>
+
+    <!-- ══════════════════════════════
+         TUNER TAB
+    ══════════════════════════════ -->
+    <div id="tabTuner">
+
+      <nav class="mode-tabs" role="tablist">
+        <button class="mode-tab active" data-mode="guitar">Guitar</button>
+        <button class="mode-tab"        data-mode="bass">Bass</button>
+        <button class="mode-tab"        data-mode="chromatic">Chromatic</button>
+      </nav>
+
+      <div class="preset-row">
+        <label for="presetSelect">Tuning</label>
+        <select id="presetSelect"></select>
+      </div>
+
+      <div class="strings-grid" id="stringsGrid"></div>
+
+      <div class="note-display">
+        <span class="note-name" id="noteName">—</span>
+        <span class="note-sub"  id="noteSub"></span>
+      </div>
+
+      <!--
+        CSS gauge — three rotated slice divs + a CSS needle.
+        No canvas, no external library.
+        The needle rotates via:  #gaugeNeedle { transform: rotate(Xdeg) }
+        where X maps -50..+50 cents → -90..+90 degrees.
+      -->
+      <div class="gauge-wrap">
+        <div class="gauge" id="gauge">
+
+          <!-- Colour slices, painted back-to-front:
+               far-flat (red) → near-flat (paprika) → near-sharp (green)
+               → mid-sharp (paprika) → far-sharp (red)               -->
+          <div class="gauge-slices">
+            <div class="gs gs-far-flat"></div>
+            <div class="gs gs-near-flat"></div>
+            <div class="gs gs-far-sharp"></div>
+            <div class="gs gs-mid-sharp"></div>
+            <div class="gs gs-near-sharp"></div>
+          </div>
+
+          <!-- Needle -->
+          <div class="gauge-needle" id="gaugeNeedle"></div>
+
+          <!-- Centre hub — displays cents value -->
+          <div class="gauge-center">
+            <span class="gauge-counter" id="gaugeCounter">—</span>
+            <span class="gauge-unit"    id="gaugeUnit"></span>
+          </div>
+
+        </div>
+
+        <!-- flat / sharp labels -->
+        <div class="gauge-labels">
+          <span class="glabel glabel-flat">flat</span>
+          <span class="glabel glabel-sharp">sharp</span>
+        </div>
+      </div>
+
+      <div class="readout-row">
+        <p class="cents-label" id="centsLabel"></p>
+        <p class="freq-label"  id="freqLabel">—</p>
+      </div>
+
+      <button class="start-btn" id="startBtn">Start tuning</button>
+
+    </div><!-- /tabTuner -->
+
+
+    <!-- ══════════════════════════════
+         SETTINGS TAB
+    ══════════════════════════════ -->
+    <div id="tabSettings" hidden>
+
+      <section class="settings-section">
+        <h2 class="section-title">Input level</h2>
+        <p class="section-desc">
+          Pluck a string and watch the bar. The white marker is the noise gate —
+          the signal must cross it to trigger detection.
+        </p>
+        <div class="level-wrap">
+          <div class="level-track">
+            <div class="level-bar"  id="levelBar"></div>
+            <div class="level-gate" id="levelGate"></div>
+          </div>
+          <span class="level-rms" id="levelRms">0.0000</span>
+        </div>
+      </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">Auto-calibrate gate</h2>
+        <p class="section-desc">
+          Start the tuner, keep your guitar silent, then press the button.
+          The app samples room noise for 2.5 s and sets the gate automatically.
+        </p>
+        <button class="cal-btn" id="calBtn">Auto-calibrate</button>
+        <div class="cal-progress-wrap" style="display:none">
+          <div class="cal-progress-track">
+            <div class="cal-progress-bar" id="calProgress"></div>
+          </div>
+        </div>
+        <p class="cal-status" id="calStatus"></p>
+      </section>
+
+      <section class="settings-section">
+        <h2 class="section-title">Detection parameters</h2>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <label class="slider-label" for="sl-micGain">Mic gain</label>
+            <span class="slider-readout" id="rv-micGain">2.0×</span>
+          </div>
+          <input type="range" id="sl-micGain" min="1.0" max="10.0" step="0.5" value="2.0" />
+          <p class="slider-hint">Pre-amplifies the mic signal. Try 3–5× for acoustic guitar on a laptop mic.</p>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <label class="slider-label" for="sl-rmsGate">Noise gate</label>
+            <span class="slider-readout" id="rv-rmsGate">0.012</span>
+          </div>
+          <input type="range" id="sl-rmsGate" min="0.001" max="0.08" step="0.001" value="0.012" />
+          <p class="slider-hint">Lower = picks up quieter signals. Higher = ignores more room noise.</p>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <label class="slider-label" for="sl-yinThreshold">YIN threshold</label>
+            <span class="slider-readout" id="rv-yinThreshold">0.12</span>
+          </div>
+          <input type="range" id="sl-yinThreshold" min="0.05" max="0.30" step="0.01" value="0.12" />
+          <p class="slider-hint">Lower = stricter. Higher = catches softer notes with slight false-pitch risk.</p>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <label class="slider-label" for="sl-confThresh">Confidence threshold</label>
+            <span class="slider-readout" id="rv-confThresh">0.50</span>
+          </div>
+          <input type="range" id="sl-confThresh" min="0.20" max="0.85" step="0.01" value="0.50" />
+          <p class="slider-hint">Minimum certainty required to show a note. Lower = more readings.</p>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <label class="slider-label" for="sl-smoothing">Needle speed</label>
+            <span class="slider-readout" id="rv-smoothing">0.18</span>
+          </div>
+          <input type="range" id="sl-smoothing" min="0.05" max="0.50" step="0.01" value="0.18" />
+          <p class="slider-hint">Lower = slower, steadier. Higher = faster, more reactive.</p>
+        </div>
+
+        <div class="slider-group">
+          <div class="slider-header">
+            <label class="slider-label" for="sl-holdMs">Note hold</label>
+            <span class="slider-readout" id="rv-holdMs">1800 ms</span>
+          </div>
+          <input type="range" id="sl-holdMs" min="300" max="4000" step="100" value="1800" />
+          <p class="slider-hint">How long the last reading stays visible after the string stops ringing.</p>
+        </div>
+
+        <button class="reset-btn" id="resetBtn">Reset to defaults</button>
+      </section>
+
+    </div><!-- /tabSettings -->
+
+  </main>
+
+  <script src="tuner.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>
