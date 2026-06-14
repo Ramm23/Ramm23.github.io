@@ -1,96 +1,101 @@
 /* ═══════════════════════════════════════════════════════════
-   style.css  —  YIN Tuner   60-30-10 palette
-   60% carbon black / charcoal  →  page bg, card, inputs
-   30% floral white / dust grey →  text, borders, inactive UI
-   10% spicy paprika            →  accent: active, needle, cta
+   style.css  —  YIN Tuner   
+   Palette built from the background: warm paprika orange + 
+   organic beige + deep carbon. The wavy background is the
+   identity — the card frames it rather than hiding it.
    ═══════════════════════════════════════════════════════════ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 /* ── Tokens ──────────────────────────────────────────────── */
 :root {
-  /* Raw palette */
   --floral-white:   #fffcf2;
   --dust-grey:      #ccc5b9;
   --charcoal-brown: #403d39;
   --carbon-black:   #252422;
   --spicy-paprika:  #eb5e28;
 
-  /* Derived semantic tokens */
   --font:     'DM Mono', 'Courier New', monospace;
 
-  /* 60% surfaces */
-  --bg:       #1a1917;          /* slightly deeper than carbon-black */
-  --card:     var(--carbon-black);
-  --inset:    #2e2b28;          /* inputs, tab pills, slider tracks */
-  --inset2:   #343129;          /* deeper inset: slider group bg */
+  /* Surfaces */
+  --bg:       #1a1917;
+  --card:     rgba(28, 26, 23, 0.88);
+  --inset:    rgba(255,252,242,0.06);
+  --inset2:   rgba(255,252,242,0.04);
 
-  /* 30% text & borders */
+  /* Text & borders */
   --text:     var(--floral-white);
   --muted:    var(--dust-grey);
-  --faint:    #6b6560;
-  --border:   rgba(204,197,185,0.12);
-  --border2:  rgba(204,197,185,0.22);
+  --faint:    #7a7268;
+  --border:   rgba(204,197,185,0.10);
+  --border2:  rgba(204,197,185,0.20);
 
-  /* 10% accent */
-  --accent:         var(--spicy-paprika);
-  --accent-dim:     rgba(235,94,40,0.18);
-  --accent-dimmer:  rgba(235,94,40,0.08);
+  /* Accent */
+  --accent:        var(--spicy-paprika);
+  --accent-dim:    rgba(235,94,40,0.18);
+  --accent-dimmer: rgba(235,94,40,0.07);
+  --accent-glow:   rgba(235,94,40,0.35);
 
-  /* Tuning state colours (distinct from accent so states are unambiguous) */
-  --c-intune:    #4ecb82;
-  --c-close:     var(--spicy-paprika);
-  --c-off:       #b03020;
-  --carbon-black: #252422;   /* direct ref needed inside gauge-center */
+  /* Tuning states */
+  --c-intune: #4ecb82;
+  --c-intune-glow: rgba(78,203,130,0.30);
+  --c-close:  var(--spicy-paprika);
+  --c-off:    #b03020;
+
+  /* Layout */
+  --radius-card: 18px;
+  --radius-inner: 9px;
 }
 
 /* ── Base ────────────────────────────────────────────────── */
 body {
-  font-family:      var(--font);
-  background-color: var(--bg);
-  background-image: url('Background.jpg');
-  background-size:  cover;
+  font-family:         var(--font);
+  background-color:    var(--bg);
+  background-image:    url('Background.jpg');
+  background-size:     cover;
   background-position: center;
   background-attachment: fixed;
-  color:            var(--text);
-  min-height:       100dvh;
-  display:          flex;
-  align-items:      center;
-  justify-content:  center;
-  padding:          1rem;
+  color:               var(--text);
+  min-height:          100dvh;
+  display:             flex;
+  align-items:         center;
+  justify-content:     center;
+  padding:             1rem;
 }
 
-/* ── [hidden] always wins over any display rule ──────────── */
 [hidden] { display: none !important; }
 
 /* ═══════════════════════════════════════════════════════════
-   CARD
-   Background image shows through at ~85% opacity on the card.
-   The backdrop-filter blur softens the pattern so text stays
-   readable without hiding the background entirely.
+   CARD — glass panel that frames the background pattern.
+   Slight warm tint so the orange waves bleed through.
    ═══════════════════════════════════════════════════════════ */
 .tuner {
-  display:            flex;
-  flex-direction:     column;
-  align-items:        stretch;
-  gap:                1.1rem;
-  width:              min(440px, 100%);
-  background:         rgba(37, 36, 34, 0.82);
-  backdrop-filter:    blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
-  border:             1px solid rgba(235, 94, 40, 0.25);
-  border-radius:      14px;
-  padding:            1.25rem 1.25rem 1.5rem;
+  display:         flex;
+  flex-direction:  column;
+  align-items:     stretch;
+  gap:             1rem;
+  width:           min(420px, 100%);
+  background:      var(--card);
+  backdrop-filter: blur(22px) saturate(1.6) brightness(0.85);
+  -webkit-backdrop-filter: blur(22px) saturate(1.6) brightness(0.85);
+  border:          1px solid rgba(235,94,40,0.22);
+  border-top:      1px solid rgba(235,94,40,0.38);
+  border-radius:   var(--radius-card);
+  padding:         1.1rem 1.1rem 1.4rem;
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.4),
+    0 24px 64px rgba(0,0,0,0.55),
+    0 0 80px rgba(235,94,40,0.08) inset;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   TOP TAB BAR  (Tuner / Settings)
-   30% resting  →  10% active
+   TOP TAB BAR
    ═══════════════════════════════════════════════════════════ */
 .top-tabs {
   display:       flex;
   background:    var(--inset);
-  border-radius: 8px;
+  border:        1px solid var(--border);
+  border-radius: var(--radius-inner);
   padding:       3px;
   gap:           3px;
 }
@@ -99,18 +104,20 @@ body {
   flex:          1;
   padding:       7px 0;
   border:        none;
-  border-radius: 6px;
+  border-radius: 7px;
   background:    transparent;
-  color:         var(--muted);
+  color:         var(--faint);
   font:          inherit;
-  font-size:     12px;
-  letter-spacing: 0.03em;
+  font-size:     11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   cursor:        pointer;
-  transition:    background .15s, color .15s;
+  transition:    background .18s, color .18s;
 }
 .top-tab.active {
   background: var(--accent);
   color:      var(--floral-white);
+  box-shadow: 0 2px 10px rgba(235,94,40,0.4);
 }
 
 /* ── Tab panels ──────────────────────────────────────────── */
@@ -118,22 +125,23 @@ body {
   display:        flex;
   flex-direction: column;
   align-items:    center;
-  gap:            1rem;
+  gap:            0.9rem;
 }
 #tabSettings {
   display:        flex;
   flex-direction: column;
   gap:            1.25rem;
-  padding-top:    0.75rem;  /* breathing room below the tab bar */
+  padding-top:    0.5rem;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   INSTRUMENT MODE TABS  (Guitar / Bass / Chromatic)
+   MODE TABS  (Guitar / Bass / Chromatic)
    ═══════════════════════════════════════════════════════════ */
 .mode-tabs {
   display:       flex;
   background:    var(--inset);
-  border-radius: 7px;
+  border:        1px solid var(--border);
+  border-radius: var(--radius-inner);
   padding:       3px;
   gap:           3px;
   width:         100%;
@@ -142,16 +150,17 @@ body {
   flex:          1;
   padding:       5px 0;
   border:        none;
-  border-radius: 5px;
+  border-radius: 7px;
   background:    transparent;
   color:         var(--faint);
   font:          inherit;
-  font-size:     12px;
+  font-size:     11px;
+  letter-spacing: 0.04em;
   cursor:        pointer;
   transition:    background .15s, color .15s;
 }
 .mode-tab.active {
-  background: var(--charcoal-brown);
+  background: rgba(255,252,242,0.10);
   color:      var(--text);
 }
 
@@ -165,21 +174,21 @@ body {
   width:       100%;
 }
 .preset-row label {
-  font-size:   11px;
-  color:       var(--faint);
-  white-space: nowrap;
+  font-size:      10px;
+  color:          var(--faint);
+  white-space:    nowrap;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.07em;
 }
 #presetSelect {
   flex:             1;
   padding:          6px 28px 6px 10px;
   background:       var(--inset);
   border:           1px solid var(--border2);
-  border-radius:    6px;
+  border-radius:    7px;
   color:            var(--muted);
   font:             inherit;
-  font-size:        12px;
+  font-size:        11px;
   cursor:           pointer;
   appearance:       none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23ccc5b9' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
@@ -190,7 +199,8 @@ body {
 #presetSelect:focus { outline: none; border-color: var(--accent); }
 
 /* ═══════════════════════════════════════════════════════════
-   STRING GRID
+   STRING GRID — guitar string feel: wider touch targets,
+   subtle highlight on active to mimic a plucked string glow
    ═══════════════════════════════════════════════════════════ */
 .strings-grid { display: grid; gap: 5px; width: 100%; }
 
@@ -201,27 +211,44 @@ body {
   gap:            3px;
 }
 
-/* 30% resting: charcoal border, muted text */
 .string-btn {
   width:         100%;
-  padding:       9px 2px 7px;
+  padding:       10px 2px 8px;
   border:        1px solid var(--border);
-  border-radius: 7px;
+  border-radius: var(--radius-inner);
   background:    var(--inset);
   color:         var(--faint);
   font:          inherit;
   font-size:     13px;
-  font-weight:   600;
+  font-weight:   500;
   cursor:        pointer;
   text-align:    center;
-  transition:    all .15s;
+  transition:    all .18s;
+  position:      relative;
+}
+/* subtle string-line top accent on hover */
+.string-btn::before {
+  content:       '';
+  position:      absolute;
+  top:           0; left: 15%; right: 15%;
+  height:        1px;
+  background:    var(--border2);
+  border-radius: 1px;
+  transition:    background .18s, opacity .18s;
+  opacity:       0;
 }
 .string-btn:hover { border-color: var(--border2); color: var(--muted); }
-/* 10% active: paprika border + tint */
+.string-btn:hover::before { opacity: 1; }
+
 .string-btn.active {
   background:   var(--accent-dim);
   border-color: var(--accent);
   color:        var(--accent);
+  box-shadow:   0 0 12px rgba(235,94,40,0.18);
+}
+.string-btn.active::before {
+  background: var(--accent);
+  opacity:    0.6;
 }
 
 .str-num { font-size: 9px; color: var(--faint); letter-spacing: 0.04em; }
@@ -245,272 +272,273 @@ body {
 
 .chromatic-label {
   text-align: center;
-  font-size:  12px;
+  font-size:  11px;
   color:      var(--faint);
-  padding:    4px 0;
+  padding:    6px 0;
+  letter-spacing: 0.04em;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   NOTE DISPLAY
-   State colours: intune=green  close=paprika  off=dark-red
+   NOTE DISPLAY — the dominant visual element.
+   Big, coloured, with a text-shadow glow when in tune.
    ═══════════════════════════════════════════════════════════ */
 .note-display {
   display:         flex;
   flex-direction:  column;
   align-items:     center;
-  gap:             1px;
-  min-height:      68px;
+  gap:             2px;
+  min-height:      74px;
   justify-content: center;
 }
-.note-name {
-  font-size:   58px;
-  font-weight: 700;
-  line-height: 1;
-  color:       var(--charcoal-brown);
-  transition:  color .2s, opacity .08s;
-}
-.note-name[data-state="intune"] { color: var(--c-intune); }
-.note-name[data-state="close"]  { color: var(--accent); }
-.note-name[data-state="off"]    { color: var(--c-off); }
 
-.note-sub { font-size: 12px; color: var(--faint); }
+.note-name {
+  font-size:   70px;
+  font-weight: 500;
+  line-height: 1;
+  color:       rgba(255,252,242,0.15);
+  letter-spacing: -0.02em;
+  transition:  color .25s, text-shadow .25s, opacity .1s;
+}
+.note-name[data-state="intune"] {
+  color:       var(--c-intune);
+  text-shadow: 0 0 40px var(--c-intune-glow), 0 0 80px rgba(78,203,130,0.12);
+}
+.note-name[data-state="close"] {
+  color: var(--accent);
+  text-shadow: 0 0 30px var(--accent-glow);
+}
+.note-name[data-state="off"] { color: var(--c-off); }
+
+.note-sub {
+  font-size:      11px;
+  color:          var(--faint);
+  letter-spacing: 0.06em;
+}
 
 /* ═══════════════════════════════════════════════════════════
-   CSS GAUGE  —  semicircular speedometer style
-   Based on rotated slice divs + a CSS transform needle.
-   No canvas, no external library.
-
-   Structure:
-     .gauge-wrap        outer container, centres the gauge
-     .gauge             200×100 semicircle, overflow:hidden
-       .gauge-slices    four rotated colour wedges
-       .gauge-needle    the rotating pointer
-       .gauge-center    dark hub cap with cents readout
-     .gauge-labels      flat / sharp text below the arc
+   CSS GAUGE — enlarged and given more presence.
+   The "in tune" state pulses the arc glow green.
    ═══════════════════════════════════════════════════════════ */
 
-/* Outer wrapper — centres the gauge and the labels below it */
 .gauge-wrap {
   display:        flex;
   flex-direction: column;
   align-items:    center;
-  gap:            6px;
+  gap:            5px;
   width:          100%;
-  padding:        4px 0 0;
+  padding:        2px 0 0;
 }
 
-/* The semicircle body */
 .gauge {
-  font-family:  var(--font);
-  width:        220px;
-  height:       110px;
-  border-radius: 110px 110px 0 0;
-  background:   var(--inset);
+  font-family:   var(--font);
+  width:         240px;
+  height:        120px;
+  border-radius: 120px 120px 0 0;
+  background:    rgba(255,252,242,0.04);
+  border:        1px solid rgba(255,252,242,0.07);
+  border-bottom: none;
   box-shadow:
-    0 0 0 5px rgba(235, 94, 40, 0.12),
-    0 0 28px 4px rgba(235, 94, 40, 0.18);
-  position:     relative;
-  overflow:     hidden;
-  /* Safari stack-context fix */
+    0 0 0 1px rgba(0,0,0,0.3),
+    0 0 32px 6px rgba(235,94,40,0.12),
+    0 0 0 8px rgba(235,94,40,0.05);
+  position:  relative;
+  overflow:  hidden;
+  transition: box-shadow .4s ease;
   -webkit-transform-style: flat;
   -webkit-transform: translateZ(0);
 }
 
-/* ── Colour slices ──────────────────────────────────────────
-   Each slice is a full 220×220 square rotated around the
-   bottom-centre of the semicircle to create a pie wedge.
+/* In-tune state: arc glows green */
+.gauge.intune {
+  box-shadow:
+    0 0 0 1px rgba(0,0,0,0.3),
+    0 0 40px 8px rgba(78,203,130,0.20),
+    0 0 0 8px rgba(78,203,130,0.06);
+}
 
-   The gauge spans -90° (far flat) → 0° (centre) → +90° (far sharp).
-   That is 180° total. Each half gets two zones:
-     Outer 40° = red (off)
-     Inner 50° = paprika (close)
-     Centre 20° = green (in tune, shared across both halves)
-
-   We use left-origin rotation for the left half and
-   right-origin rotation for the right half, matching the
-   reference implementation.
-──────────────────────────────────────────────────────────── */
+/* ── Colour slices ────────────────────────────────────────── */
 .gauge-slices { position: absolute; bottom: 0; left: 0; right: 0; }
 
 .gs {
   position: absolute;
   bottom:   0;
-  width:    220px;
-  height:   220px;
+  width:    240px;
+  height:   240px;
 }
 
-/* Far flat  (left outer) — red, rotates from left */
 .gs-far-flat {
   background:       var(--c-off);
-  left:             -110px;
+  left:             -120px;
   transform-origin: bottom right;
   transform:        rotate(-40deg);
 }
-
-/* Near flat (left inner) — paprika, covers the outer red wedge inward */
 .gs-near-flat {
   background:       var(--c-close);
-  left:             -110px;
+  left:             -120px;
   transform-origin: bottom right;
   transform:        rotate(-14deg);
 }
-
-/* Near sharp (right inner) — in-tune green fills the centre */
 .gs-near-sharp {
   background:       var(--c-intune);
   left:             0;
   transform-origin: bottom left;
   transform:        rotate(14deg);
 }
-
-/* Far sharp (right outer) — paprika then red stacked on the right */
-/* We need two right-side divs: paprika inner + red outer */
-/* Since we only have one .gs-far-sharp, we fake the two-tone right
-   side by letting gs-near-sharp (green) sit on top of gs-far-sharp (red)
-   with a paprika div in between rendered via ::before */
 .gs-far-sharp {
   background:       var(--c-off);
-  left:             110px;
+  left:             120px;
   transform-origin: bottom left;
   transform:        rotate(40deg);
 }
-
-/* Paprika wedge on the right — inserted via a 5th slice */
 .gs-mid-sharp {
   background:       var(--c-close);
-  left:             110px;
+  left:             120px;
   transform-origin: bottom left;
   transform:        rotate(14deg);
 }
 
-/* ── Needle ─────────────────────────────────────────────────
-   Pivot is at the bottom-centre of the semicircle.
-   transform-origin: right end of the needle bar (100% 50%).
-   rotate(0deg) = pointing straight up = 0 cents (in tune).
-   rotate(-90deg) = pointing left = -50 cents (max flat).
-   rotate(+90deg) = pointing right = +50 cents (max sharp).
-──────────────────────────────────────────────────────────── */
+/* ── Needle ──────────────────────────────────────────────── */
 .gauge-needle {
-  width:         94px;
-  height:        5px;
-  background:    var(--floral-white);
-  border-radius: 3px 2px 2px 3px;
+  width:         104px;
+  height:        4px;
+  background:    linear-gradient(to right, rgba(255,252,242,0.3), var(--floral-white));
+  border-radius: 2px 2px 2px 2px;
   position:      absolute;
-  bottom:        7px;
-  /* right-end of needle sits at the centre of the semicircle */
-  left:          calc(50% - 94px);
+  bottom:        8px;
+  left:          calc(50% - 104px);
   transform-origin: 100% 50%;
   transform:     rotate(0deg);
-  box-shadow:    0 1px 4px rgba(0,0,0,0.5);
-  transition:    transform 0.7s cubic-bezier(0.65, 1.95, 0.03, 0.32);
+  box-shadow:    0 1px 6px rgba(0,0,0,0.6), 0 0 8px rgba(255,252,242,0.15);
+  transition:    transform 0.65s cubic-bezier(0.65, 1.95, 0.03, 0.32);
 }
 
-/* ── Centre hub ─────────────────────────────────────────────
-   Dark disc at the pivot that hides the needle base and
-   shows the live cents reading.
-──────────────────────────────────────────────────────────── */
+/* tip dot */
+.gauge-needle::after {
+  content:       '';
+  position:      absolute;
+  right:         -3px; top: 50%;
+  transform:     translateY(-50%);
+  width:         7px; height: 7px;
+  background:    var(--floral-white);
+  border-radius: 50%;
+  box-shadow:    0 0 6px rgba(255,252,242,0.4);
+}
+
+/* ── Centre hub ─────────────────────────────────────────── */
 .gauge-center {
   position:      absolute;
   bottom:        0;
   left:          50%;
   transform:     translateX(-50%);
-  width:         58%;
-  height:        58%;
-  background:    var(--carbon-black);
-  border-radius: 110px 110px 0 0;
-  box-shadow:    0 -8px 14px -6px rgba(0,0,0,0.4);
+  width:         56%;
+  height:        56%;
+  background:    rgba(26, 25, 23, 0.95);
+  border-radius: 120px 120px 0 0;
+  border:        1px solid rgba(255,252,242,0.07);
+  border-bottom: none;
   display:       flex;
   flex-direction: column;
   align-items:   center;
   justify-content: flex-start;
-  padding-top:   14px;
+  padding-top:   16px;
   gap:           1px;
 }
 
 .gauge-counter {
-  font-size:   1.3em;
-  font-weight: 500;
-  color:       var(--floral-white);
-  line-height: 1;
-  transition:  color 0.2s;
+  font-size:      1.45em;
+  font-weight:    500;
+  color:          var(--floral-white);
+  line-height:    1;
+  transition:     color 0.25s, text-shadow 0.25s;
+  letter-spacing: -0.02em;
 }
-.gauge-counter[data-state="intune"] { color: var(--c-intune); }
+.gauge-counter[data-state="intune"] {
+  color:       var(--c-intune);
+  text-shadow: 0 0 16px var(--c-intune-glow);
+}
 .gauge-counter[data-state="close"]  { color: var(--accent); }
 .gauge-counter[data-state="off"]    { color: var(--c-off); }
 
 .gauge-unit {
-  font-size: 0.65em;
-  color:     var(--faint);
+  font-size:   0.6em;
+  color:       var(--faint);
   line-height: 1;
 }
 
-/* ── flat / sharp labels ────────────────────────────────── */
+/* ── flat / sharp labels ─────────────────────────────────── */
 .gauge-labels {
   display:         flex;
   justify-content: space-between;
-  width:           220px;
+  width:           240px;
 }
 .glabel {
-  font-size:      9px;
-  letter-spacing: 0.08em;
+  font-size:      8px;
+  letter-spacing: 0.10em;
   text-transform: uppercase;
   color:          var(--faint);
 }
 
 /* ═══════════════════════════════════════════════════════════
-   READOUT LABELS
+   READOUT ROW
    ═══════════════════════════════════════════════════════════ */
-/* Thin divider above readouts */
 .readout-row {
   display:     flex;
   flex-direction: column;
   align-items: center;
-  gap:         3px;
+  gap:         2px;
   width:       100%;
-  padding-top: 0.25rem;
+  padding-top: 0.3rem;
   border-top:  1px solid var(--border);
 }
 
 .cents-label {
-  font-size:  13px;
+  font-size:   12px;
   font-weight: 500;
-  text-align: center;
-  min-height: 18px;
-  color:      var(--faint);
-  transition: color .2s, opacity .1s;
+  text-align:  center;
+  min-height:  17px;
+  color:       var(--faint);
+  letter-spacing: 0.02em;
+  transition:  color .25s, opacity .1s;
 }
 .cents-label[data-state="intune"] { color: var(--c-intune); }
 .cents-label[data-state="close"]  { color: var(--accent); }
 .cents-label[data-state="off"]    { color: var(--c-off); }
 
 .freq-label {
-  font-size: 11px;
-  color:     var(--faint);
-  text-align: center;
+  font-size:   10px;
+  color:       var(--faint);
+  text-align:  center;
+  letter-spacing: 0.03em;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   START BUTTON  — 10% accent as the primary CTA
+   START BUTTON
    ═══════════════════════════════════════════════════════════ */
 .start-btn {
-  width:         100%;
-  padding:       11px 0;
-  border:        none;
-  border-radius: 8px;
-  background:    var(--accent);
-  color:         var(--floral-white);
-  font:          inherit;
-  font-size:     13px;
-  font-weight:   500;
-  letter-spacing: 0.04em;
-  cursor:        pointer;
-  transition:    background .15s, opacity .15s;
+  width:          100%;
+  padding:        12px 0;
+  border:         none;
+  border-radius:  var(--radius-inner);
+  background:     var(--accent);
+  color:          var(--floral-white);
+  font:           inherit;
+  font-size:      12px;
+  font-weight:    500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor:         pointer;
+  transition:     background .18s, box-shadow .18s, opacity .15s;
+  box-shadow:     0 4px 20px rgba(235,94,40,0.35);
 }
-.start-btn:hover    { background: #d4531f; }
+.start-btn:hover {
+  background:  #d4531f;
+  box-shadow:  0 4px 28px rgba(235,94,40,0.50);
+}
 .start-btn.listening {
-  background: var(--inset);
-  color:      var(--accent);
-  border:     1px solid var(--accent);
+  background:  transparent;
+  color:       var(--accent);
+  border:      1px solid var(--accent);
+  box-shadow:  0 0 16px rgba(235,94,40,0.15) inset;
 }
 
 /* ═══════════════════════════════════════════════════════════
@@ -526,17 +554,16 @@ body {
 .settings-section:last-child { border-bottom: none; padding-bottom: 0; }
 
 .section-title {
-  font-size:      10px;
+  font-size:      9px;
   font-weight:    500;
-  color:          var(--accent);        /* 10% accent on section headers */
-  letter-spacing: 0.10em;
+  color:          var(--accent);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-
 .section-desc {
-  font-size:   12px;
+  font-size:   11px;
   color:       var(--faint);
-  line-height: 1.6;
+  line-height: 1.65;
 }
 
 /* ── Level meter ─────────────────────────────────────────── */
@@ -547,7 +574,7 @@ body {
 }
 .level-track {
   flex:          1;
-  height:        12px;
+  height:        10px;
   background:    var(--inset);
   border:        1px solid var(--border);
   border-radius: 3px;
@@ -561,17 +588,16 @@ body {
   transition:    width .04s linear, background .1s;
   max-width:     100%;
 }
-/* Gate marker: uses floral-white (30% colour) so it's visible but not accent */
 .level-gate {
   position:       absolute;
-  top:            -3px;
-  bottom:         -3px;
+  top:            -3px; bottom: -3px;
   width:          2px;
   background:     var(--floral-white);
   border-radius:  1px;
   left:           0%;
   transition:     left .2s;
   pointer-events: none;
+  opacity:        0.6;
 }
 .level-rms {
   font-size:  10px;
@@ -585,30 +611,27 @@ body {
   align-self:    flex-start;
   padding:       7px 16px;
   border:        1px solid var(--border2);
-  border-radius: 6px;
+  border-radius: 7px;
   background:    transparent;
   color:         var(--muted);
   font:          inherit;
-  font-size:     12px;
+  font-size:     11px;
   cursor:        pointer;
-  transition:    border-color .15s, color .15s, background .15s;
+  transition:    border-color .15s, color .15s;
 }
 .cal-btn:hover    { border-color: var(--accent); color: var(--accent); }
 .cal-btn:disabled { opacity: .35; cursor: default; }
 
-.cal-progress-wrap { margin-top: 2px; }
-.cal-progress-track {
-  height:        5px;
-  background:    var(--inset);
-  border-radius: 3px;
-  overflow:      hidden;
+.cal-progress-wrap   { margin-top: 2px; }
+.cal-progress-track  {
+  height: 4px; background: var(--inset);
+  border-radius: 3px; overflow: hidden;
 }
 .cal-progress-bar {
-  height:     100%;
-  width:      0%;
-  background: var(--accent);   /* 10% accent on progress */
+  height: 100%; width: 0%;
+  background:   var(--accent);
   border-radius: 3px;
-  transition: width .1s linear;
+  transition:   width .1s linear;
 }
 .cal-status { font-size: 11px; color: var(--faint); min-height: 14px; line-height: 1.5; }
 
@@ -617,19 +640,17 @@ body {
   display:        flex;
   flex-direction: column;
   gap:            5px;
-  padding:        0.65rem 0.75rem;
+  padding:        0.6rem 0.7rem;
   background:     var(--inset2);
   border:         1px solid var(--border);
-  border-radius:  7px;
+  border-radius:  var(--radius-inner);
 }
 .slider-header {
   display:         flex;
   justify-content: space-between;
   align-items:     baseline;
 }
-/* 30%: label in muted text */
-.slider-label   { font-size: 12px; color: var(--muted); }
-/* 10%: readout in accent */
+.slider-label   { font-size: 11px; color: var(--muted); }
 .slider-readout { font-size: 11px; color: var(--accent); font-weight: 500; }
 
 input[type="range"] {
@@ -646,7 +667,7 @@ input[type="range"] {
   margin-top:    0.2rem;
   padding:       6px 14px;
   border:        1px solid var(--border);
-  border-radius: 6px;
+  border-radius: 7px;
   background:    transparent;
   color:         var(--faint);
   font:          inherit;
@@ -655,3 +676,16 @@ input[type="range"] {
   transition:    border-color .15s, color .15s;
 }
 .reset-btn:hover { border-color: var(--border2); color: var(--muted); }
+
+/* ── Animations ──────────────────────────────────────────── */
+@keyframes intune-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 0 40px 8px rgba(78,203,130,0.20), 0 0 0 8px rgba(78,203,130,0.06); }
+  50%       { box-shadow: 0 0 0 1px rgba(0,0,0,0.3), 0 0 55px 12px rgba(78,203,130,0.30), 0 0 0 8px rgba(78,203,130,0.10); }
+}
+.gauge.intune {
+  animation: intune-pulse 1.6s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gauge, .gauge-needle, .note-name, .gauge-counter { transition: none !important; animation: none !important; }
+}

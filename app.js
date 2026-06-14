@@ -1,5 +1,4 @@
-// app.js — UI layer for tuner.js (v7 — CSS gauge)
-// No external libraries required.
+// app.js — UI layer for tuner.js (v8 — refined CSS gauge)
 
 // ── Element refs ──────────────────────────────────────────────
 const elNote        = document.getElementById('noteName');
@@ -9,6 +8,7 @@ const elFreq        = document.getElementById('freqLabel');
 const elBtn         = document.getElementById('startBtn');
 const elGrid        = document.getElementById('stringsGrid');
 const elPreset      = document.getElementById('presetSelect');
+const elGauge        = document.getElementById('gauge');
 const elGaugeNeedle  = document.getElementById('gaugeNeedle');
 const elGaugeCounter = document.getElementById('gaugeCounter');
 const elGaugeUnit    = document.getElementById('gaugeUnit');
@@ -54,18 +54,7 @@ const MIN_HOLD_OPACITY = 0.35;
 let holdStartedAt = null;
 
 // ── CSS gauge ─────────────────────────────────────────────────
-//
-//  The needle is a plain <div> rotated with CSS transform.
-//  -50 cents → -90deg  (far left)
-//    0 cents →   0deg  (pointing straight up, centre)
-//  +50 cents → +90deg  (far right)
-//
-//  The CSS transition on .gauge-needle handles all animation —
-//  we just set the rotation value and the browser does the rest,
-//  including the springy cubic-bezier easing from the reference.
-
 function centsToRotation(cents) {
-  // clamp then scale: 1 cent = 1.8 degrees
   return Math.max(-50, Math.min(50, cents)) * 1.8;
 }
 
@@ -73,7 +62,9 @@ function setNeedle(cents, state) {
   const deg = centsToRotation(cents);
   elGaugeNeedle.style.transform = `rotate(${deg}deg)`;
 
-  // Hub counter
+  // Toggle intune glow class on the arc
+  elGauge.classList.toggle('intune', state === 'intune');
+
   if (state === 'idle') {
     elGaugeCounter.textContent = '—';
     elGaugeCounter.removeAttribute('data-state');
@@ -91,10 +82,10 @@ function resetNeedle() {
   elGaugeCounter.textContent = '—';
   elGaugeCounter.removeAttribute('data-state');
   elGaugeUnit.textContent = '';
+  elGauge.classList.remove('intune');
 }
 
 // ── Tab switching ─────────────────────────────────────────────
-
 elTabBtnTuner.addEventListener('click',    () => switchTab('tuner'));
 elTabBtnSettings.addEventListener('click', () => switchTab('settings'));
 
@@ -107,7 +98,6 @@ function switchTab(tab) {
 }
 
 // ── Boot ──────────────────────────────────────────────────────
-
 document.querySelectorAll('.mode-tab').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.mode-tab').forEach(b => b.classList.remove('active'));
@@ -140,7 +130,6 @@ onModeChanged('guitar', getCurrentPresets(), getCurrentStrings(), activePresetKe
 syncSliders(getDetection());
 
 // ── Slider sync ───────────────────────────────────────────────
-
 function syncSliders(params) {
   Object.entries(SLIDERS).forEach(([key, el]) => {
     if (!el) return;
@@ -151,7 +140,6 @@ function syncSliders(params) {
 }
 
 // ── Level meter ───────────────────────────────────────────────
-
 function updateLevelMeter(rms, gate) {
   const MAX_RMS = 0.15;
   const rmsP    = Math.min(1, rms  / MAX_RMS) * 100;
@@ -163,7 +151,6 @@ function updateLevelMeter(rms, gate) {
 }
 
 // ── Calibration UI ────────────────────────────────────────────
-
 function onCalibrationStart(durationMs) {
   elCalBtn.disabled       = true;
   elCalBtn.textContent    = 'Listening…';
@@ -184,7 +171,6 @@ function onCalibrationDone(newGate, noiseFloor) {
 function onCalibrationError(msg) { elCalStatus.textContent = msg; }
 
 // ── Preset dropdown ───────────────────────────────────────────
-
 function renderPresetDropdown(presetsForMode, selectedKey) {
   elPreset.innerHTML = '';
   for (const key of Object.keys(presetsForMode.tunings)) {
@@ -197,7 +183,6 @@ function renderPresetDropdown(presetsForMode, selectedKey) {
 }
 
 // ── String grid ───────────────────────────────────────────────
-
 function renderStrings(strings) {
   if (!strings.length) {
     elGrid.style.gridTemplateColumns = '1fr';
@@ -233,7 +218,6 @@ function syncStringHighlight(lockedMidi) {
 }
 
 // ── State helpers ─────────────────────────────────────────────
-
 function tuningState(cents) {
   const a = Math.abs(cents);
   return a < 5 ? 'intune' : a < 20 ? 'close' : 'off';
@@ -263,7 +247,6 @@ function resetDisplay() {
 }
 
 // ── Engine callbacks ──────────────────────────────────────────
-
 function onPitchDetected(data) {
   const state = tuningState(data.cents);
 
@@ -277,18 +260,15 @@ function onPitchDetected(data) {
   holdStartedAt = null;
   setOpacity(1);
 
-  // Note display
   elNote.textContent = data.note;
   setDisplayState(state);
   elSub.textContent  = data.noteWithOct;
 
-  // Text readout below gauge
   const sign = data.cents >= 0 ? '+' : '';
   elCents.textContent =
-    state === 'intune' ? 'In tune ✓' : `${sign}${data.cents.toFixed(1)} cents`;
+    state === 'intune' ? 'In tune ✓' : `${sign}${data.cents.toFixed(1)} ¢`;
   elFreq.textContent = `${data.frequency.toFixed(1)} Hz`;
 
-  // Move the needle
   setNeedle(data.cents, state);
 }
 
